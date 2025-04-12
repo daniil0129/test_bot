@@ -1,5 +1,4 @@
-#mfmfmfmfm
-version: '3.8'  # Версия схемы Compose
+
 
 services:
   web:  # Название сервиса
