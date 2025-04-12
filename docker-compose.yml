@@ -1,0 +1,63 @@
+# Версия формата Compose файла
+version: '3.8'
+
+# Определение сервисов (контейнеров)
+services:
+  # Сервис бота
+  bot:
+    # Сборка образа из Dockerfile в директории ./bot
+    build: ./bot
+
+    # Всегда перезапускать контейнер при падении
+    restart: always
+
+    # Переменные окружения
+    environment:
+      - TELEGRAM_TOKEN=${TELEGRAM_TOKEN}  # Берем из переменных окружения хоста
+
+    # Подключаемся к сети
+    networks:
+      - bot-network
+
+    # Открываем порт 8443 для других контейнеров (но не для хоста)
+    expose:
+      - "8443"
+
+  # Сервис Nginx
+  nginx:
+    # Используем официальный образ nginx с alpine (легковесный)
+    image: nginx:alpine
+
+    # Всегда перезапускать контейнер при падении
+    restart: always
+
+    # Пробрасываем порты на хост:
+    # - 80 порт для HTTP
+    # - 443 порт для HTTPS
+    ports:
+      - "80:80"
+      - "443:443"
+
+    # Монтируем volumes:
+    # - Конфиг nginx
+    # - Директорию certbot для SSL сертификатов
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certbot:/etc/letsencrypt
+
+    # Зависимости - запускается только после bot
+    depends_on:
+      - bot
+
+    # Подключаемся к сети
+    networks:
+      - bot-network
+
+# Определение сетей
+networks:
+  # Создаем bridge-сеть с именем bot-network
+  bot-network:
+    driver: bridge
+
+
+
