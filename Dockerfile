@@ -19,11 +19,7 @@ COPY . .
 # Копируем конфиг Nginx
 COPY nginx/nginx.conf /etc/nginx/nginx.conf
 
-# Получаем SSL-сертификат (замените на свои данные)
-RUN certbot certonly --nginx --non-interactive --agree-tos \
-    -d example.com \
-    -m your@email.com \
-    --no-eff-email
+
 
 # Скрипт запуска
 COPY start.sh /start.sh
